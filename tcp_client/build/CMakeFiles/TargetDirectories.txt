@@ -452,6 +452,13 @@
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_netif/CMakeFiles/install.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_netif/CMakeFiles/install/local.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_netif/CMakeFiles/install/strip.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/edit_cache.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/rebuild_cache.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/list_install_components.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/install.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/install/local.dir
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/install/strip.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_phy/CMakeFiles/__idf_esp_phy.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_phy/CMakeFiles/edit_cache.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_phy/CMakeFiles/rebuild_cache.dir
@@ -487,13 +494,6 @@
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/console/CMakeFiles/install.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/console/CMakeFiles/install/local.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/console/CMakeFiles/install/strip.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/__idf_esp_driver_spi.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/edit_cache.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/rebuild_cache.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/list_install_components.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/install.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/install/local.dir
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/CMakeFiles/install/strip.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_eth/CMakeFiles/edit_cache.dir
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_eth/CMakeFiles/rebuild_cache.dir

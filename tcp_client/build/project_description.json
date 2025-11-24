@@ -1,7 +1,7 @@
 {
     "version":            "1.2",
     "project_name":       "tcp_client",
-    "project_version":    "1",
+    "project_version":    "ee0e028-dirty",
     "project_path":       "/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client",
     "idf_path":           "/Users/th3vik/Desktop/esp-idf",
     "build_dir":          "/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build",
@@ -696,7 +696,7 @@
             "type": "LIBRARY",
             "lib": "__idf_main",
             "reqs": [],
-            "priv_reqs": [ "unity", "nvs_flash", "esp_netif", "protocol_examples_common" ],
+            "priv_reqs": [ "unity", "nvs_flash", "esp_netif", "esp_driver_spi", "esp_driver_gpio", "protocol_examples_common" ],
             "managed_reqs": [],
             "managed_priv_reqs": [ "protocol_examples_common" ],
             "file": "/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/main/libmain.a",
@@ -2251,7 +2251,7 @@
             "dir": "/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/main",
             "lib": "__idf_main",
             "reqs": [],
-            "priv_reqs": [ "unity", "nvs_flash", "esp_netif", "protocol_examples_common" ],
+            "priv_reqs": [ "unity", "nvs_flash", "esp_netif", "esp_driver_spi", "esp_driver_gpio", "protocol_examples_common" ],
             "managed_reqs": [],
             "managed_priv_reqs": [ "protocol_examples_common" ],
             "include_dirs": [ "." ]

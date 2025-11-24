@@ -94,12 +94,12 @@
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_vfs_console/libesp_vfs_console.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/lwip/liblwip.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_netif/libesp_netif.a
+/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/libesp_driver_spi.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_phy/libesp_phy.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/wpa_supplicant/libwpa_supplicant.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_coex/libesp_coex.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_wifi/libesp_wifi.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/console/libconsole.a
-/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/libesp_driver_spi.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_eth/libesp_eth.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_driver_spi/libesp_driver_spi.a
 /Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/protocol_examples_common/libprotocol_examples_common.a
