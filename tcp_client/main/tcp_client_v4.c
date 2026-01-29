@@ -13,6 +13,7 @@
 #include "esp_netif.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
+#include "stdbool.h"
 
 #include "driver/spi_master.h"
 
@@ -32,22 +33,27 @@ static const char *TAG = "example";
 // static const char *payload = "Message from ESP32 ";
 
 /* ======= SPI configuration (change pins/mode/clock to match your slave) ======= */
-#define SPI_HOST_USE     VSPI_HOST   // VSPI (SPI3). Use HSPI_HOST if you prefer SPI2.
-#define PIN_NUM_MISO     19
+#define SPI_HOST_USE     VSPI_HOST   // VSPI (SPI3).
+#define PIN_NUM_MISO     19          //Default, not GPIO matrix pins 
 #define PIN_NUM_MOSI     23
 #define PIN_NUM_SCLK     18
 #define PIN_NUM_CS       5
 
-#define SPI_CLOCK_HZ     (1000*1000)  // 1 MHz
+#define SPI_CLOCK_HZ     (10*1000*1000)   //
 #define SPI_MODE         0               // CPOL/CPHA = 0; set 0/1/2/3 per your slave
 
+#define SPI_BUF_SIZE   64
+
 static spi_device_handle_t spi = NULL;
-// uint8_t spi_buf[SPI_CHUNK_BYTES];
+
+char spiTransactionBuf[SPI_BUF_SIZE] = {0};
 
 
 #define SPI_TAG "spi_protocol"
 
-int attempts =0;
+int correct = 0;
+int incorrect = 0;
+float accuracy = 0.0f;
 static void spi_master_init(void)
 {
     esp_err_t ret;
@@ -57,19 +63,27 @@ static void spi_master_init(void)
         .sclk_io_num = PIN_NUM_SCLK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 512*8,  // ignored w/o DMA; leaving 0 is fine
+        .max_transfer_sz = 512*8,  
     };    
     spi_device_interface_config_t stm32cfg = {
+        .command_bits = 0,
+        .address_bits = 0,
+        .dummy_bits = 0,
         .clock_speed_hz = SPI_CLOCK_HZ,
         .mode = SPI_MODE,
         .spics_io_num = PIN_NUM_CS,
         .queue_size = 1,
-        .address_bits = 0 
     };
     
     ret = spi_bus_initialize(SPI_HOST_USE, &buscfg, 0);
     ESP_ERROR_CHECK(ret);
     ret = spi_bus_add_device(SPI_HOST_USE, &stm32cfg, &spi);
+    
+
+    int khz;
+    spi_device_get_actual_freq(spi,&khz);
+    printf("True SPI Frequency: %dkhz \n", khz);    
+
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "SPI master initialized: mode=%d, %d Hz", SPI_MODE, SPI_CLOCK_HZ);
 }
@@ -78,130 +92,177 @@ static void spi_master_init(void)
 
 void spi_read_bytes()
 {
-    printf("Trying to read attempt: %d \n", attempts);
-    attempts++;
+    
+    // printf("Trying to read attempt: %d \n", attempts);
     char buf[2] = {0};
-    spi_transaction_t receive = {.flags = SPI_TRANS_USE_RXDATA,
-                                .tx_buffer = buf,
-                                .length = 16,
-                                .rxlength = 16};
+    spi_transaction_t receive = {
+                                .tx_buffer = NULL,
+                                .rx_buffer = spiTransactionBuf,
+                                .length = SPI_BUF_SIZE*8,
+                                .rxlength = SPI_BUF_SIZE*8};
 
-    // gpio_set_level(PIN_NUM_CS, 0);
-    int ret = spi_device_polling_transmit(spi, &receive);
-    if (ret != ESP_OK)
+    if(spi_device_polling_transmit(spi, &receive)!=ESP_OK)
     {
-        ESP_LOGE(TAG, "SPI read operation failed\n");
+        ESP_LOGE(TAG, "receive issue");
     }
-    printf("Data read: %d %d \n", receive.rx_data[0], receive.rx_data[1]);
-    // vTaskDelay(1 / portTICK_PERIOD_MS);
-    // gpio_set_level(PIN_NUM_CS, 1);  
-    vTaskDelay(pdMS_TO_TICKS(500)); 
-    // vTaskDelay(1000 / portTICK_PERIOD_MS);                              
+
+    int matched = 1;
+    int allZeros = 1;
+    for(int i=0;i<64;i++)
+    {
+        if(spiTransactionBuf[i]!=i && spiTransactionBuf[i] != 0)
+        {
+            // printf("Expected: %d Received: %d \n", i, spiTransactionBuf[i]);
+            matched =0;
+        }
+
+        if(spiTransactionBuf[i]!=0)
+        {
+            allZeros = 0;
+        }
+    }
+
+    
+    int total = correct + incorrect;
+    if (total > 0) accuracy = (float)correct / (float)total;
+
+    if(matched && !allZeros) {
+        // printf("All bytes received. Total correct %d, Current accuracy: %f \n", correct,accuracy);
+        correct++;
+    }
+    else{ 
+        // printf("Mismatch. Current Accuracy: %f \n", accuracy);  
+        incorrect++;
+    }
 }
 
-// //fully taken from https://krutarthpurohit.medium.com/implementing-spi-protocol-on-esp32-idf-5-1-version-6f2383af1c22
-// void spi_write_data()     // Function to write data at given address
-// {
-//     /*If MSB of addr is set the host will read data from slave.
-//      *If MSB of addr is clear the host will write data on slave.
-//      */
-//     char* buf = "SPI Hello From ESP32 write data ";    
-//     spi_transaction_t trans_desc = {
-//         // Configure the transaction_structure
-//         .tx_data = buf,                                        
-//         .length = strlen(buf)*8,                                                  
-//     };
-//     gpio_set_level(PIN_NUM_CS, 0);                                      
-//     printf("Writing '%s' data at %x\n", buf);
-//     ret = spi_device_polling_transmit(spi, &trans_desc);                // spi_device_polling_transmit starts to transmit entire 'trans_desc' structure.
-//     if (ret != ESP_OK)
-//     {
-//         ESP_LOGE(SPI_TAG, "SPI write operation failed\n");
-//     }   
-//     vTaskDelay(1 / portTICK_PERIOD_MS);                                 // Once data is transferred, we provide the delay and then higher the CS'
-//     gpio_set_level(PIN_NUM_CS, 1);                                      // After CS' is high, the slave sill get unselected
-//     vTaskDelay(1000 / portTICK_PERIOD_MS);   
-// }
+bool stm_handshake()
+{
+    printf("Shaking Hands... \n");
+    bool receivedProperSequence = false;
+    
+    //Wait for proper sequence to be recevied.
+    int time = 0;
+    while(!receivedProperSequence)
+    {
+        printf("Handshake failed at time t = %dms\n", time*500);
+        spi_transaction_t receive = {
+            .tx_buffer = NULL,
+            .rx_buffer = spiTransactionBuf,
+            .length = SPI_BUF_SIZE*8,
+            .rxlength = SPI_BUF_SIZE*8
+        };   
 
+        if(spi_device_polling_transmit(spi, &receive)!=ESP_OK)
+        {
+            ESP_LOGE(TAG, "receive issue");
+        }    
+
+        receivedProperSequence = true;
+        for(int i=0;i<64;i++)
+        {
+            if(spiTransactionBuf[i]!=i)
+            {
+                receivedProperSequence = false;
+            }
+        }        
+        time++;
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+    printf("SPI Handshake Complete.");
+    return true;
+}
 
 void tcp_client(void)
 {
-    // char rx_buffer[128];
     char host_ip[] = HOST_IP_ADDR;
     int addr_family = 0;
     int ip_protocol = 0;
 
     
-    gpio_config_t io_conf = {};
-    io_conf.pin_bit_mask = ((1ULL << 5));
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-    gpio_config(&io_conf);    
+    // gpio_config_t io_conf = {};
+    // io_conf.pin_bit_mask = ((1ULL << 5));
+    // io_conf.mode = GPIO_MODE_OUTPUT;
+    // io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    // gpio_config(&io_conf);      
 
     // Initialize SPI once up front
-    
     spi_master_init();
+    
+    spi_device_acquire_bus(spi, portMAX_DELAY);
+
+
 
     while (1) {
 #if defined(CONFIG_EXAMPLE_IPV4)
-        // struct sockaddr_in dest_addr;
-        // inet_pton(AF_INET, host_ip, &dest_addr.sin_addr);
-        // dest_addr.sin_family = AF_INET;
-        // dest_addr.sin_port = htons(PORT);
-        // addr_family = AF_INET;
-        // ip_protocol = IPPROTO_IP;
+        struct sockaddr_in dest_addr;
+        inet_pton(AF_INET, host_ip, &dest_addr.sin_addr);
+        dest_addr.sin_family = AF_INET;
+        dest_addr.sin_port = htons(PORT);
+        addr_family = AF_INET;
+        ip_protocol = IPPROTO_IP;
 #elif defined(CONFIG_EXAMPLE_SOCKET_IP_INPUT_STDIN)
         struct sockaddr_storage dest_addr = { 0 };
         ESP_ERROR_CHECK(get_addr_from_stdin(PORT, SOCK_STREAM, &ip_protocol, &addr_family, &dest_addr));
 #endif
 
-        // int sock =  socket(addr_family, SOCK_STREAM, ip_protocol);
-        // if (sock < 0) {
-        //     ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
-        //     break;
-        // }
-        // ESP_LOGI(TAG, "Socket created, connecting to %s:%d", host_ip, PORT);
+        int sock =  socket(addr_family, SOCK_STREAM, ip_protocol);
+        if (sock < 0) {
+            ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
+            break;
+        }
+        ESP_LOGI(TAG, "Socket created, connecting to %s:%d", host_ip, PORT);
 
-        // int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-        // if (err != 0) {
-        //     ESP_LOGE(TAG, "Socket unable to connect: errno %d", errno);
-        //     break;
-        // }
-        // ESP_LOGI(TAG, "Successfully connected");
+        int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+        if (err != 0) {
+            ESP_LOGE(TAG, "Socket unable to connect: errno %d", errno);
+            break;
+        }
+        ESP_LOGI(TAG, "Successfully connected to PC");
+        
+        ESP_LOGI(TAG, "Attemping SPI handshake");
+        stm_handshake();        
 
-        // uint8_t i = 0;
+
+        long i = 0;
         while (1) {
             // 1) Read a block from SPI (blocking call)
             spi_read_bytes();
-            
-            // gpio_set_level(22,1);
-            // vTaskDelay(pdMS_TO_TICKS(1000)); 
-            // gpio_set_level(22,0);
-            // vTaskDelay(pdMS_TO_TICKS(1000)); 
+            i++;
            
-            // // 2) Send the whole block over TCP (blocking until all bytes written)
-            // // size_t sent_total = 0;
-            // // while (sent_total < SPI_CHUNK_BYTES) {
+            size_t sent_total = 0;
+            while (sent_total < SPI_BUF_SIZE) {
                 
-            // //     ssize_t n = send(sock, spi_buf + sent_total,
-            // //                      SPI_CHUNK_BYTES - sent_total, 0);
-            // //     if (n > 0) {
-            // //         sent_total += (size_t)n;
-            // //         continue;
-            // //     }
-            // //     if (n < 0 && (errno == EINTR)) 
-            // //     { 
-            // //         ESP_LOGE(TAG, "TCP send failed: errno %d", errno);
-            // //         break;
-            // //     }   
-            // // }
-            // vTaskDelay(pdMS_TO_TICKS(1000));
+                ssize_t n;
+                n = send(sock, spiTransactionBuf + sent_total,
+                                    SPI_BUF_SIZE - sent_total, 0);
+                
+                if (n > 0) {
+                    sent_total += (size_t)n;
+                    continue;
+                }
+                if (n < 0 && (errno == EINTR)) 
+                { 
+                    ESP_LOGE(TAG, "TCP send failed: errno %d", errno);
+
+                    break;
+                }   
+
+            }
+                
+            if((i%200)==0)
+            {
+                printf("Total correct %d, Current accuracy: %f \n", correct,accuracy);
+            }            
+            // vTaskDelay(pdMS_TO_TICKS(1));
         }
 
-        // if (sock != -1) {
-        //     ESP_LOGE(TAG, "Shutting down socket and restarting...");
-        //     shutdown(sock, 0);
-        //     close(sock);
-        // }
+        if (sock != -1) {
+            ESP_LOGE(TAG, "Shutting down socket and restarting...");
+            shutdown(sock, 0);
+            spi_device_release_bus(spi);
+            close(sock);
+        }
     }
+    spi_device_release_bus(spi);
 }

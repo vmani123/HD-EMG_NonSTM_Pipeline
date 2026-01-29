@@ -465,7 +465,7 @@ CONFIG_IDF_TARGET_ARCH="xtensa"
 # default:
 CONFIG_IDF_TARGET="esp32"
 # default:
-CONFIG_IDF_INIT_VERSION="6.0.0"
+CONFIG_IDF_INIT_VERSION="$IDF_INIT_VERSION"
 # default:
 CONFIG_IDF_TARGET_ESP32=y
 # default:
@@ -759,8 +759,7 @@ CONFIG_PARTITION_TABLE_MD5=y
 CONFIG_EXAMPLE_IPV4=y
 # default:
 # CONFIG_EXAMPLE_IPV6 is not set
-# default:
-CONFIG_EXAMPLE_IPV4_ADDR="192.168.0.165"
+CONFIG_EXAMPLE_IPV4_ADDR="192.168.2.7"
 # default:
 CONFIG_EXAMPLE_PORT=3333
 # default:
@@ -782,7 +781,6 @@ CONFIG_ENV_GPIO_IN_RANGE_MAX=39
 CONFIG_ENV_GPIO_OUT_RANGE_MAX=33
 # default:
 CONFIG_EXAMPLE_CONNECT_WIFI=y
-# default:
 # CONFIG_EXAMPLE_WIFI_SSID_PWD_FROM_STDIN is not set
 # default:
 CONFIG_EXAMPLE_PROVIDE_WIFI_CONSOLE_CMD=y
@@ -919,18 +917,6 @@ CONFIG_COMPILER_CXX_GLIBCXX_CONSTEXPR_NO_CHANGE=y
 
 #
 # Component config
-#
-
-#
-# !!! MINIMAL_BUILD is enabled !!!
-#
-
-#
-# Only common components and those transitively required by the main component are listed
-#
-
-#
-# If a component configuration is missing, please add it to the main component's requirements
 #
 
 #
