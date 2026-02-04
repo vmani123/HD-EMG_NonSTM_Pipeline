@@ -16,6 +16,9 @@
 #include "stdbool.h"
 
 #include "driver/spi_master.h"
+#include "esp_heap_caps.h"    // heap_caps_malloc for DMA-capable buffers
+#include "esp_timer.h"        // esp_timer_get_time()
+#include "esp_rom_sys.h"      // esp_rom_printf()
 
 #if defined(CONFIG_EXAMPLE_SOCKET_IP_INPUT_STDIN)
 #include "addr_from_stdin.h"
@@ -33,7 +36,7 @@ static const char *TAG = "example";
 
 /* ======= SPI configuration (change pins/mode/clock to match your slave) ======= */
 #define SPI_HOST_USE     VSPI_HOST   // VSPI (SPI3).
-#define PIN_NUM_MISO     19          //Default, not GPIO matrix pins 
+#define PIN_NUM_MISO     19          //Default, not GPIO matrix pins
 #define PIN_NUM_MOSI     23
 #define PIN_NUM_SCLK     18
 #define PIN_NUM_CS       5
@@ -43,13 +46,16 @@ static const char *TAG = "example";
 
 #define SPI_BUF_SIZE     64
 
-/* ======= TCP batching configuration (ONLY CHANGE) ======= */
-#define TCP_BATCH_FRAMES  256 //16384 data 
+/* ======= TCP batching configuration ======= */
+#define TCP_BATCH_FRAMES  256 //16384 data
 #define TCP_BATCH_SIZE    (SPI_BUF_SIZE * TCP_BATCH_FRAMES)
 
-static spi_device_handle_t spi = NULL;
+/* ======= SPI async / DMA queueing configuration ======= */
+#define SPI_INFLIGHT      16   // number of queued DMA transactions (tune 4/8/16)
+static spi_transaction_t s_trans[SPI_INFLIGHT];
+static uint8_t *s_rxbuf[SPI_INFLIGHT];
 
-char spiTransactionBuf[SPI_BUF_SIZE] = {0};
+static spi_device_handle_t spi = NULL;
 
 /* Batch buffer for TCP sends */
 static uint8_t tcpBatchBuf[TCP_BATCH_SIZE];
@@ -79,63 +85,37 @@ static void spi_master_init(void)
         .clock_speed_hz = SPI_CLOCK_HZ,
         .mode = SPI_MODE,
         .spics_io_num = PIN_NUM_CS,
-        .queue_size = 1,
+        .queue_size = SPI_INFLIGHT,     // allow multiple queued transactions
     };
 
-    ret = spi_bus_initialize(SPI_HOST_USE, &buscfg, 0);
+    // Enable DMA: use SPI_DMA_CH_AUTO instead of 0
+    ret = spi_bus_initialize(SPI_HOST_USE, &buscfg, SPI_DMA_CH_AUTO);
     ESP_ERROR_CHECK(ret);
+
     ret = spi_bus_add_device(SPI_HOST_USE, &stm32cfg, &spi);
+    ESP_ERROR_CHECK(ret);
 
     int khz;
     spi_device_get_actual_freq(spi,&khz);
     printf("True SPI Frequency: %dkhz \n", khz);
 
-    ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "SPI master initialized: mode=%d, %d Hz", SPI_MODE, SPI_CLOCK_HZ);
-}
 
-void spi_read_bytes()
-{
-    char buf[2] = {0};
-    spi_transaction_t receive = {
-        .tx_buffer = NULL,
-        .rx_buffer = spiTransactionBuf,
-        .length = SPI_BUF_SIZE*8,
-        .rxlength = SPI_BUF_SIZE*8
-    };
+    // Allocate DMA-capable RX buffers and initialize reusable transactions
+    for (int i = 0; i < SPI_INFLIGHT; i++) {
+        s_rxbuf[i] = (uint8_t *)heap_caps_malloc(SPI_BUF_SIZE, MALLOC_CAP_DMA);
+        assert(s_rxbuf[i] != NULL);
 
-    if(spi_device_polling_transmit(spi, &receive)!=ESP_OK)
-    {
-        ESP_LOGE(TAG, "receive issue");
-    }
-
-    int matched = 1;
-    int allZeros = 1;
-    for(int i=0;i<64;i++)
-    {
-        if(spiTransactionBuf[i]!=i && spiTransactionBuf[i] != 0)
-        {
-            matched =0;
-        }
-
-        if(spiTransactionBuf[i]!=0)
-        {
-            allZeros = 0;
-        }
-    }
-
-    int total = correct + incorrect;
-    if (total > 0) accuracy = (float)correct / (float)total;
-
-    if(matched && !allZeros) {
-        correct++;
-    }
-    else{
-        incorrect++;
+        memset(&s_trans[i], 0, sizeof(s_trans[i]));
+        s_trans[i].tx_buffer = NULL;
+        s_trans[i].rx_buffer = s_rxbuf[i];
+        s_trans[i].length    = SPI_BUF_SIZE * 8;  // bits
+        s_trans[i].rxlength  = SPI_BUF_SIZE * 8;  // bits
+        s_trans[i].user      = (void *)(intptr_t)i;
     }
 }
 
-bool stm_handshake()
+static bool stm_handshake(void)
 {
     printf("Shaking Hands... \n");
     bool receivedProperSequence = false;
@@ -144,9 +124,10 @@ bool stm_handshake()
     while(!receivedProperSequence)
     {
         printf("Handshake failed at time t = %dms\n", time*500);
+
         spi_transaction_t receive = {
             .tx_buffer = NULL,
-            .rx_buffer = spiTransactionBuf,
+            .rx_buffer = s_rxbuf[0],
             .length = SPI_BUF_SIZE*8,
             .rxlength = SPI_BUF_SIZE*8
         };
@@ -159,16 +140,47 @@ bool stm_handshake()
         receivedProperSequence = true;
         for(int i=0;i<64;i++)
         {
-            if(spiTransactionBuf[i]!=i)
+            if(s_rxbuf[0][i] != (uint8_t)i)
             {
                 receivedProperSequence = false;
+                break;
             }
         }
+
         time++;
         vTaskDelay(pdMS_TO_TICKS(500));
     }
     printf("SPI Handshake Complete.");
     return true;
+}
+
+static void spi_prime_async_reads(void)
+{
+    for (int i = 0; i < SPI_INFLIGHT; i++) {
+        esp_err_t err = spi_device_queue_trans(spi, &s_trans[i], portMAX_DELAY);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "queue_trans failed: %s", esp_err_to_name(err));
+        }
+    }
+}
+
+static uint8_t *spi_get_and_requeue(void)
+{
+    spi_transaction_t *r = NULL;
+    esp_err_t err = spi_device_get_trans_result(spi, &r, portMAX_DELAY);
+    if (err != ESP_OK || r == NULL) {
+        ESP_LOGE(TAG, "get_trans_result failed: %s", esp_err_to_name(err));
+        return NULL;
+    }
+
+    uint8_t *buf = (uint8_t *)r->rx_buffer;
+
+    err = spi_device_queue_trans(spi, r, portMAX_DELAY);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "re-queue failed: %s", esp_err_to_name(err));
+    }
+
+    return buf;
 }
 
 void tcp_client(void)
@@ -210,22 +222,39 @@ void tcp_client(void)
         ESP_LOGI(TAG, "Attemping SPI handshake");
         stm_handshake();
 
-        /* reset batching state on (re)connect */
+        // Start queued async DMA reads after handshake
+        spi_prime_async_reads();
+
         tcpBatchFill = 0;
 
-        long i = 0;
-        while (1) {
-            // 1) Read a block from SPI (blocking call)
-            spi_read_bytes();
-            i++;
+        // Minimal-overhead print state (prints at most once per second)
+        static int64_t last_print_us = 0;
 
-            // 2) Append to batch buffer
+        while (1) {
+            uint8_t *frame = spi_get_and_requeue();
+            if (!frame) {
+                ESP_LOGE(TAG, "SPI async receive failed");
+                goto tcp_reconnect;
+            }
+
+            // correctness/accuracy logic
+            int matched = 1;
+            int allZeros = 1;
+            for (int k = 0; k < 64; k++) {
+                if (frame[k] != (uint8_t)k && frame[k] != 0) matched = 0;
+                if (frame[k] != 0) allZeros = 0;
+            }
+
+            if (matched && !allZeros) correct++;
+            else incorrect++;
+
+            // Append to TCP batch buffer
             if (tcpBatchFill + SPI_BUF_SIZE <= TCP_BATCH_SIZE) {
-                memcpy(&tcpBatchBuf[tcpBatchFill], spiTransactionBuf, SPI_BUF_SIZE);
+                memcpy(&tcpBatchBuf[tcpBatchFill], frame, SPI_BUF_SIZE);
                 tcpBatchFill += SPI_BUF_SIZE;
             }
 
-            // 3) If batch full, send it in one go (batched TCP send)
+            // If batch full, send it
             if (tcpBatchFill == TCP_BATCH_SIZE) {
                 size_t sent_total = 0;
                 while (sent_total < tcpBatchFill) {
@@ -239,21 +268,29 @@ void tcp_client(void)
                         continue;
                     }
                     if (n < 0 && (errno == EINTR)) {
-                        // retry on interrupt
                         continue;
                     }
 
                     ESP_LOGE(TAG, "TCP send failed: errno %d", errno);
-                    goto tcp_reconnect;  // keep behavior similar: break inner loop & reconnect
+                    goto tcp_reconnect;
                 }
-
-                // reset after successful batch send
                 tcpBatchFill = 0;
             }
 
-            if((i%1000==0)|| (i%200==0 && (i > 1200)))
-            {
-                printf("Total correct %d, Current accuracy: %f \n", correct,accuracy);
+            // ---- Minimal overhead stats print: once per second, integer-only ----
+            int64_t now_us = esp_timer_get_time();
+            if (now_us - last_print_us >= 1000000) { // 1 second
+                last_print_us = now_us;
+
+                int total = correct + incorrect;
+                // accuracy in thousandths (avoid float formatting)
+                int acc_milli = (total > 0) ? (correct * 1000) / total : 0;
+
+                esp_rom_printf("t=%lld ms  correct=%d  incorrect=%d  acc=%d.%03d\n",
+                               (long long)(now_us / 1000),
+                               correct,
+                               incorrect,
+                               acc_milli / 1000, acc_milli % 1000);
             }
         }
 
@@ -274,7 +311,6 @@ tcp_reconnect:
                 if (n < 0 && (errno == EINTR)) {
                     continue;
                 }
-                // give up on flush
                 break;
             }
             tcpBatchFill = 0;

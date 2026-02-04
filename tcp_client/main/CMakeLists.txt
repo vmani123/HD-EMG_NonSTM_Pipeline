@@ -8,4 +8,4 @@ endif()
 
 idf_component_register(SRCS "tcp_client_v4.c" "tcp_client_main.c" "${tcp_client_ip}"
                                 INCLUDE_DIRS "."
-                                PRIV_REQUIRES unity nvs_flash esp_netif esp_driver_spi esp_driver_gpio)
+                                PRIV_REQUIRES unity nvs_flash esp_netif esp_driver_spi esp_driver_gpio esp_timer)
