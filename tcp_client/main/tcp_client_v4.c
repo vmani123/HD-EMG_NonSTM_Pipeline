@@ -41,7 +41,7 @@ static const char *TAG = "example";
 #define PIN_NUM_SCLK     18
 #define PIN_NUM_CS       5
 
-#define SPI_CLOCK_HZ     (10*1000*1000)
+#define SPI_CLOCK_HZ     (12*1000*1000)
 #define SPI_MODE         0
 
 #define SPI_BUF_SIZE     64
@@ -66,6 +66,7 @@ static size_t tcpBatchFill = 0;
 int correct = 0;
 int incorrect = 0;
 float accuracy = 0.0f;
+int time_after_handshake;
 
 static void spi_master_init(void)
 {
@@ -221,6 +222,8 @@ void tcp_client(void)
 
         ESP_LOGI(TAG, "Attemping SPI handshake");
         stm_handshake();
+        time_after_handshake = esp_timer_get_time();
+
 
         // Start queued async DMA reads after handshake
         spi_prime_async_reads();
@@ -229,24 +232,30 @@ void tcp_client(void)
 
         // Minimal-overhead print state (prints at most once per second)
         static int64_t last_print_us = 0;
-
+        int frames_sent = 0;
         while (1) {
             uint8_t *frame = spi_get_and_requeue();
+            frames_sent++;
             if (!frame) {
                 ESP_LOGE(TAG, "SPI async receive failed");
                 goto tcp_reconnect;
             }
 
             // correctness/accuracy logic
-            int matched = 1;
-            int allZeros = 1;
-            for (int k = 0; k < 64; k++) {
-                if (frame[k] != (uint8_t)k && frame[k] != 0) matched = 0;
-                if (frame[k] != 0) allZeros = 0;
+            if(frames_sent==100)
+            {
+                frames_sent=0;
+                int matched = 1;
+                int allZeros = 1;
+                for (int k = 0; k < 64; k++) {
+                    if (frame[k] != (uint8_t)k && frame[k] != 0) matched = 0;
+                    if (frame[k] != 0) allZeros = 0;
+                }
+
+                if (matched && !allZeros) correct++;
+                else incorrect++;
             }
 
-            if (matched && !allZeros) correct++;
-            else incorrect++;
 
             // Append to TCP batch buffer
             if (tcpBatchFill + SPI_BUF_SIZE <= TCP_BATCH_SIZE) {
@@ -278,7 +287,7 @@ void tcp_client(void)
             }
 
             // ---- Minimal overhead stats print: once per second, integer-only ----
-            int64_t now_us = esp_timer_get_time();
+            int64_t now_us = esp_timer_get_time() - time_after_handshake;
             if (now_us - last_print_us >= 1000000) { // 1 second
                 last_print_us = now_us;
 
@@ -286,10 +295,9 @@ void tcp_client(void)
                 // accuracy in thousandths (avoid float formatting)
                 int acc_milli = (total > 0) ? (correct * 1000) / total : 0;
 
-                esp_rom_printf("t=%lld ms  correct=%d  incorrect=%d  acc=%d.%03d\n",
+                esp_rom_printf("t=%lld ms  total %d  acc=%d.%03d\n",
                                (long long)(now_us / 1000),
-                               correct,
-                               incorrect,
+                               total*100,
                                acc_milli / 1000, acc_milli % 1000);
             }
         }
