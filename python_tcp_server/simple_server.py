@@ -39,7 +39,7 @@ def main():
     start = time.perf_counter()
     message_counter = 0
 
-    with open(DATA_FILE, 'ab') as f:
+    with open(DATA_FILE, 'wb') as f:
         try:
             while True:
                 new_data = client_socket.recv(BUFFER_SIZE)
