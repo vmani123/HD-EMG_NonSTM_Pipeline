@@ -6,7 +6,7 @@ import time
 # Configuration
 HOST = '172.20.10.3'
 PORT = 3333
-BUFFER_SIZE = 512
+BUFFER_SIZE = 16384
 DATA_FILE = 'received_data.bin'
 
 WINDOW_MS = 5000      # show last 5 seconds on the plot

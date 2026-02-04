@@ -30,7 +30,6 @@
 #define PORT CONFIG_EXAMPLE_PORT
 
 static const char *TAG = "example";
-// static const char *payload = "Message from ESP32 ";
 
 /* ======= SPI configuration (change pins/mode/clock to match your slave) ======= */
 #define SPI_HOST_USE     VSPI_HOST   // VSPI (SPI3).
@@ -39,21 +38,29 @@ static const char *TAG = "example";
 #define PIN_NUM_SCLK     18
 #define PIN_NUM_CS       5
 
-#define SPI_CLOCK_HZ     (10*1000*1000)   //
-#define SPI_MODE         0               // CPOL/CPHA = 0; set 0/1/2/3 per your slave
+#define SPI_CLOCK_HZ     (10*1000*1000)
+#define SPI_MODE         0
 
-#define SPI_BUF_SIZE   64
+#define SPI_BUF_SIZE     64
+
+/* ======= TCP batching configuration (ONLY CHANGE) ======= */
+#define TCP_BATCH_FRAMES  256 //16384 data 
+#define TCP_BATCH_SIZE    (SPI_BUF_SIZE * TCP_BATCH_FRAMES)
 
 static spi_device_handle_t spi = NULL;
 
 char spiTransactionBuf[SPI_BUF_SIZE] = {0};
 
+/* Batch buffer for TCP sends */
+static uint8_t tcpBatchBuf[TCP_BATCH_SIZE];
+static size_t tcpBatchFill = 0;
 
 #define SPI_TAG "spi_protocol"
 
 int correct = 0;
 int incorrect = 0;
 float accuracy = 0.0f;
+
 static void spi_master_init(void)
 {
     esp_err_t ret;
@@ -63,8 +70,8 @@ static void spi_master_init(void)
         .sclk_io_num = PIN_NUM_SCLK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 512*8,  
-    };    
+        .max_transfer_sz = 512*8,
+    };
     spi_device_interface_config_t stm32cfg = {
         .command_bits = 0,
         .address_bits = 0,
@@ -74,32 +81,28 @@ static void spi_master_init(void)
         .spics_io_num = PIN_NUM_CS,
         .queue_size = 1,
     };
-    
+
     ret = spi_bus_initialize(SPI_HOST_USE, &buscfg, 0);
     ESP_ERROR_CHECK(ret);
     ret = spi_bus_add_device(SPI_HOST_USE, &stm32cfg, &spi);
-    
 
     int khz;
     spi_device_get_actual_freq(spi,&khz);
-    printf("True SPI Frequency: %dkhz \n", khz);    
+    printf("True SPI Frequency: %dkhz \n", khz);
 
     ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "SPI master initialized: mode=%d, %d Hz", SPI_MODE, SPI_CLOCK_HZ);
 }
 
-
-
 void spi_read_bytes()
 {
-    
-    // printf("Trying to read attempt: %d \n", attempts);
     char buf[2] = {0};
     spi_transaction_t receive = {
-                                .tx_buffer = NULL,
-                                .rx_buffer = spiTransactionBuf,
-                                .length = SPI_BUF_SIZE*8,
-                                .rxlength = SPI_BUF_SIZE*8};
+        .tx_buffer = NULL,
+        .rx_buffer = spiTransactionBuf,
+        .length = SPI_BUF_SIZE*8,
+        .rxlength = SPI_BUF_SIZE*8
+    };
 
     if(spi_device_polling_transmit(spi, &receive)!=ESP_OK)
     {
@@ -112,7 +115,6 @@ void spi_read_bytes()
     {
         if(spiTransactionBuf[i]!=i && spiTransactionBuf[i] != 0)
         {
-            // printf("Expected: %d Received: %d \n", i, spiTransactionBuf[i]);
             matched =0;
         }
 
@@ -122,16 +124,13 @@ void spi_read_bytes()
         }
     }
 
-    
     int total = correct + incorrect;
     if (total > 0) accuracy = (float)correct / (float)total;
 
     if(matched && !allZeros) {
-        // printf("All bytes received. Total correct %d, Current accuracy: %f \n", correct,accuracy);
         correct++;
     }
-    else{ 
-        // printf("Mismatch. Current Accuracy: %f \n", accuracy);  
+    else{
         incorrect++;
     }
 }
@@ -140,8 +139,7 @@ bool stm_handshake()
 {
     printf("Shaking Hands... \n");
     bool receivedProperSequence = false;
-    
-    //Wait for proper sequence to be recevied.
+
     int time = 0;
     while(!receivedProperSequence)
     {
@@ -151,12 +149,12 @@ bool stm_handshake()
             .rx_buffer = spiTransactionBuf,
             .length = SPI_BUF_SIZE*8,
             .rxlength = SPI_BUF_SIZE*8
-        };   
+        };
 
         if(spi_device_polling_transmit(spi, &receive)!=ESP_OK)
         {
             ESP_LOGE(TAG, "receive issue");
-        }    
+        }
 
         receivedProperSequence = true;
         for(int i=0;i<64;i++)
@@ -165,7 +163,7 @@ bool stm_handshake()
             {
                 receivedProperSequence = false;
             }
-        }        
+        }
         time++;
         vTaskDelay(pdMS_TO_TICKS(500));
     }
@@ -179,19 +177,8 @@ void tcp_client(void)
     int addr_family = 0;
     int ip_protocol = 0;
 
-    
-    // gpio_config_t io_conf = {};
-    // io_conf.pin_bit_mask = ((1ULL << 5));
-    // io_conf.mode = GPIO_MODE_OUTPUT;
-    // io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
-    // gpio_config(&io_conf);      
-
-    // Initialize SPI once up front
     spi_master_init();
-    
     spi_device_acquire_bus(spi, portMAX_DELAY);
-
-
 
     while (1) {
 #if defined(CONFIG_EXAMPLE_IPV4)
@@ -219,42 +206,78 @@ void tcp_client(void)
             break;
         }
         ESP_LOGI(TAG, "Successfully connected to PC");
-        
-        ESP_LOGI(TAG, "Attemping SPI handshake");
-        stm_handshake();        
 
+        ESP_LOGI(TAG, "Attemping SPI handshake");
+        stm_handshake();
+
+        /* reset batching state on (re)connect */
+        tcpBatchFill = 0;
 
         long i = 0;
         while (1) {
             // 1) Read a block from SPI (blocking call)
             spi_read_bytes();
             i++;
-           
+
+            // 2) Append to batch buffer
+            if (tcpBatchFill + SPI_BUF_SIZE <= TCP_BATCH_SIZE) {
+                memcpy(&tcpBatchBuf[tcpBatchFill], spiTransactionBuf, SPI_BUF_SIZE);
+                tcpBatchFill += SPI_BUF_SIZE;
+            }
+
+            // 3) If batch full, send it in one go (batched TCP send)
+            if (tcpBatchFill == TCP_BATCH_SIZE) {
+                size_t sent_total = 0;
+                while (sent_total < tcpBatchFill) {
+                    ssize_t n = send(sock,
+                                     tcpBatchBuf + sent_total,
+                                     tcpBatchFill - sent_total,
+                                     0);
+
+                    if (n > 0) {
+                        sent_total += (size_t)n;
+                        continue;
+                    }
+                    if (n < 0 && (errno == EINTR)) {
+                        // retry on interrupt
+                        continue;
+                    }
+
+                    ESP_LOGE(TAG, "TCP send failed: errno %d", errno);
+                    goto tcp_reconnect;  // keep behavior similar: break inner loop & reconnect
+                }
+
+                // reset after successful batch send
+                tcpBatchFill = 0;
+            }
+
+            if((i%1000==0)|| (i%200==0 && (i > 1200)))
+            {
+                printf("Total correct %d, Current accuracy: %f \n", correct,accuracy);
+            }
+        }
+
+tcp_reconnect:
+        // attempt to flush any partially-filled batch before closing (best-effort)
+        if (tcpBatchFill > 0) {
             size_t sent_total = 0;
-            while (sent_total < SPI_BUF_SIZE) {
-                
-                ssize_t n;
-                n = send(sock, spiTransactionBuf + sent_total,
-                                    SPI_BUF_SIZE - sent_total, 0);
-                
+            while (sent_total < tcpBatchFill) {
+                ssize_t n = send(sock,
+                                 tcpBatchBuf + sent_total,
+                                 tcpBatchFill - sent_total,
+                                 0);
+
                 if (n > 0) {
                     sent_total += (size_t)n;
                     continue;
                 }
-                if (n < 0 && (errno == EINTR)) 
-                { 
-                    ESP_LOGE(TAG, "TCP send failed: errno %d", errno);
-
-                    break;
-                }   
-
+                if (n < 0 && (errno == EINTR)) {
+                    continue;
+                }
+                // give up on flush
+                break;
             }
-                
-            if((i%200)==0)
-            {
-                printf("Total correct %d, Current accuracy: %f \n", correct,accuracy);
-            }            
-            // vTaskDelay(pdMS_TO_TICKS(1));
+            tcpBatchFill = 0;
         }
 
         if (sock != -1) {
