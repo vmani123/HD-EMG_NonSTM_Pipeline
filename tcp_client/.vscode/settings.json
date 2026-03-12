@@ -4,5 +4,6 @@
   "idf.toolsPath": "/Users/th3vik/Desktop/esp-idf/tools",
   "idf.pythonInstallPath": "/opt/anaconda3/bin/python3",
   "idf.port": "/dev/tty.SLAB_USBtoUART",
-  "idf.flashType": "UART"
+  "idf.flashType": "UART",
+  "idf.currentSetup": "/Users/th3vik/Desktop/esp-idf"
 }

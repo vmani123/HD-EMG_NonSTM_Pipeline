@@ -16,7 +16,7 @@
 #include "driver/gpio.h"
 #include "stdbool.h"
 
-#include "driver/spi_master.h"
+#include "driver/spi_slave.h"
 #include "esp_heap_caps.h"
 #include "esp_timer.h"
 #include "esp_rom_sys.h"
@@ -47,20 +47,29 @@ static const char *TAG = "example";
 #define PIN_NUM_SCLK     18
 #define PIN_NUM_CS       5
 
-#define SPI_CLOCK_HZ     (10*1000*1000)
 #define SPI_MODE         0
 
-#define SPI_BUF_SIZE     64
+#define NUM_CHANNELS     64
+#define BYTES_PER_SAMPLE 2
+#define MAGIC_LEN        2
+#define SPI_BUF_SIZE     (MAGIC_LEN + NUM_CHANNELS * BYTES_PER_SAMPLE)  // 2 + 128 = 130 bytes
+
+/* ======= Frame format ======= */
+// Each 130-byte SPI transaction:
+//   byte[0..1]   = 0x0F 0x0F magic marker
+//   byte[2..129] = 64 channels * 2 bytes each (RMS values, big-endian uint16)
+#define MAGIC_BYTE_0     0x0F
+#define MAGIC_BYTE_1     0x0F
+
 
 /* ======= TCP batching configuration ======= */
-#define TCP_BATCH_FRAMES  256                 // 256 * 64 = 16384 bytes
+#define TCP_BATCH_FRAMES  256                 // 256 * 130 = 33280 bytes
 #define TCP_BATCH_SIZE    (SPI_BUF_SIZE * TCP_BATCH_FRAMES)
 
 /* ======= SPI async / DMA queueing configuration ======= */
 #define SPI_INFLIGHT      16
-static spi_transaction_t s_trans[SPI_INFLIGHT];
+static spi_slave_transaction_t s_trans[SPI_INFLIGHT];
 static uint8_t *s_rxbuf[SPI_INFLIGHT];
-static spi_device_handle_t spi = NULL;
 
 /* ======= Double-buffering between tasks ======= */
 #define NUM_BATCH_BUFS 2
@@ -77,45 +86,34 @@ static EventGroupHandle_t g_evt = NULL;
 #define CONNECTED_BIT       (1 << 0)
 #define HANDSHAKE_DONE_BIT  (1 << 1)
 
-/* Stats (written in SPI task, read in TCP task) */
-static volatile int correct = 0;
-static volatile int incorrect = 0;
+/* Stats (written in SPI task, read in stats task) */
+static volatile uint32_t correct   = 0;
+static volatile uint32_t incorrect = 0;
 
 /* ======= SPI init ======= */
-static void spi_master_init(void)
+static void spi_slave_init(void)
 {
-    esp_err_t ret;
     spi_bus_config_t buscfg = {
         .mosi_io_num = PIN_NUM_MOSI,
         .miso_io_num = PIN_NUM_MISO,
         .sclk_io_num = PIN_NUM_SCLK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 512*8,   // bytes; OK for 64B frames
+        .max_transfer_sz = SPI_BUF_SIZE,
     };
 
-    spi_device_interface_config_t stm32cfg = {
-        .command_bits = 0,
-        .address_bits = 0,
-        .dummy_bits = 0,
-        .clock_speed_hz = SPI_CLOCK_HZ,
-        .mode = SPI_MODE,
+    spi_slave_interface_config_t slvcfg = {
+        .mode        = SPI_MODE,
         .spics_io_num = PIN_NUM_CS,
-        .queue_size = SPI_INFLIGHT,
+        .queue_size  = SPI_INFLIGHT,
+        .flags       = 0,
     };
 
-    ret = spi_bus_initialize(SPI_HOST_USE, &buscfg, SPI_DMA_CH_AUTO);
-    ESP_ERROR_CHECK(ret);
+    ESP_ERROR_CHECK(spi_slave_initialize(SPI_HOST_USE, &buscfg, &slvcfg, SPI_DMA_CH_AUTO));
 
-    ret = spi_bus_add_device(SPI_HOST_USE, &stm32cfg, &spi);
-    ESP_ERROR_CHECK(ret);
+    ESP_LOGI(TAG, "SPI slave initialized: mode=%d", SPI_MODE);
 
-    int actual_hz_or_khz = 0;
-    spi_device_get_actual_freq(spi, &actual_hz_or_khz);
-    esp_rom_printf("SPI actual freq (raw): %d\n", actual_hz_or_khz);
-
-    ESP_LOGI(TAG, "SPI master initialized: mode=%d, target=%d Hz", SPI_MODE, SPI_CLOCK_HZ);
-
+    // Allocate receive buffers in DMA-capable memory
     for (int i = 0; i < SPI_INFLIGHT; i++) {
         s_rxbuf[i] = (uint8_t *)heap_caps_malloc(SPI_BUF_SIZE, MALLOC_CAP_DMA);
         assert(s_rxbuf[i] != NULL);
@@ -124,42 +122,35 @@ static void spi_master_init(void)
         s_trans[i].tx_buffer = NULL;
         s_trans[i].rx_buffer = s_rxbuf[i];
         s_trans[i].length    = SPI_BUF_SIZE * 8;
-        s_trans[i].rxlength  = SPI_BUF_SIZE * 8;
         s_trans[i].user      = (void *)(intptr_t)i;
     }
 }
 
-/* ======= SPI handshake (kept synchronous) ======= */
+/* ======= SPI handshake ======= */
+/**
+ * Wait until the STM drives a transaction whose byte[0] is 0x0F.
+ * The ESP blocks here — no polling, no empty reads.
+ * The STM owns the clock so this only returns when real data arrives.
+ */
 static bool stm_handshake(void)
 {
-    esp_rom_printf("Shaking Hands...\n");
-    bool receivedProperSequence = false;
-    int tries = 0;
+    esp_rom_printf("Waiting for handshake from STM...\n");
 
-    while (!receivedProperSequence) {
-        esp_rom_printf("Handshake attempt %d\n", tries);
+    spi_slave_transaction_t t = {
+        .tx_buffer = NULL,
+        .rx_buffer = s_rxbuf[0],
+        .length    = SPI_BUF_SIZE * 8,
+    };
 
-        spi_transaction_t receive = {
-            .tx_buffer = NULL,
-            .rx_buffer = s_rxbuf[0],
-            .length = SPI_BUF_SIZE * 8,
-            .rxlength = SPI_BUF_SIZE * 8
-        };
+    while (1) {
+        // Blocks until STM actually drives a transaction
+        ESP_ERROR_CHECK(spi_slave_transmit(SPI_HOST_USE, &t, portMAX_DELAY));
 
-        if (spi_device_polling_transmit(spi, &receive) != ESP_OK) {
-            ESP_LOGE(TAG, "Handshake receive issue");
+        if (s_rxbuf[0][0] == MAGIC_BYTE_0 && s_rxbuf[0][1] == MAGIC_BYTE_1) {
+            break;
         }
 
-        receivedProperSequence = true;
-        for (int i = 0; i < 64; i++) {
-            if (s_rxbuf[0][i] != (uint8_t)i) {
-                receivedProperSequence = false;
-                break;
-            }
-        }
-
-        tries++;
-        vTaskDelay(pdMS_TO_TICKS(50));
+        esp_rom_printf("Handshake: unexpected magic=0x%02X%02X, retrying...\n", s_rxbuf[0][0], s_rxbuf[0][1]);
     }
 
     esp_rom_printf("SPI Handshake Complete.\n");
@@ -167,20 +158,22 @@ static bool stm_handshake(void)
 }
 
 /* ======= SPI async helpers ======= */
+// Queue all SPI_INFLIGHT transactions into the hardware pipeline
 static void spi_prime_async_reads(void)
 {
     for (int i = 0; i < SPI_INFLIGHT; i++) {
-        esp_err_t err = spi_device_queue_trans(spi, &s_trans[i], portMAX_DELAY);
+        esp_err_t err = spi_slave_queue_trans(SPI_HOST_USE, &s_trans[i], portMAX_DELAY);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "queue_trans failed: %s", esp_err_to_name(err));
         }
     }
 }
 
+// Dequeue one completed transaction, then immediately re-queue it
 static uint8_t *spi_get_and_requeue(void)
 {
-    spi_transaction_t *r = NULL;
-    esp_err_t err = spi_device_get_trans_result(spi, &r, portMAX_DELAY);
+    spi_slave_transaction_t *r = NULL;
+    esp_err_t err = spi_slave_get_trans_result(SPI_HOST_USE, &r, portMAX_DELAY);
     if (err != ESP_OK || r == NULL) {
         ESP_LOGE(TAG, "get_trans_result failed: %s", esp_err_to_name(err));
         return NULL;
@@ -188,7 +181,7 @@ static uint8_t *spi_get_and_requeue(void)
 
     uint8_t *buf = (uint8_t *)r->rx_buffer;
 
-    err = spi_device_queue_trans(spi, r, portMAX_DELAY);
+    err = spi_slave_queue_trans(SPI_HOST_USE, r, portMAX_DELAY);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "re-queue failed: %s", esp_err_to_name(err));
     }
@@ -196,23 +189,46 @@ static uint8_t *spi_get_and_requeue(void)
     return buf;
 }
 
+/* ======= Stats printer task ======= */
+/**
+ * Runs on core 0 alongside TCP. Prints magic-byte accuracy to serial ~1Hz.
+ */
+static void stats_task(void *arg)
+{
+    (void)arg;
+
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        uint32_t c  = correct;
+        uint32_t ic = incorrect;
+        uint32_t total = c + ic;
+
+        if (total == 0) {
+            esp_rom_printf("[stats] No frames validated yet\n");
+        } else {
+            uint32_t acc_milli = (c * 1000) / total;
+            esp_rom_printf("[stats] frames_checked=%lu  correct=%lu  incorrect=%lu  accuracy=%lu.%lu%%\n",
+                           (unsigned long)total,
+                           (unsigned long)c,
+                           (unsigned long)ic,
+                           (unsigned long)(acc_milli / 10),
+                           (unsigned long)(acc_milli % 10));
+        }
+    }
+}
+
 /* ======= SPI Producer Task ======= */
 static void spi_task(void *arg)
 {
     (void)arg;
 
-    // Acquire SPI bus once and keep it
-    spi_device_acquire_bus(spi, portMAX_DELAY);
-
-    // Handshake once (as in your original flow)
+    // Handshake once — blocks until STM sends a valid magic-byte frame
     stm_handshake();
     xEventGroupSetBits(g_evt, HANDSHAKE_DONE_BIT);
 
     // Prime async pipeline once
     spi_prime_async_reads();
-
-    uint32_t validate_count = 0;
-    uint32_t validate_mod = 100; // validate every 100 frames
 
     while (1) {
         // Wait until TCP is connected before producing (prevents backlog growth)
@@ -231,7 +247,6 @@ static void spi_task(void *arg)
         while (filled < TCP_BATCH_SIZE) {
             uint8_t *frame = spi_get_and_requeue();
             if (!frame) {
-                // Return buffer and retry later
                 xQueueSendToFront(free_q, &item, 0);
                 vTaskDelay(pdMS_TO_TICKS(10));
                 break;
@@ -241,29 +256,18 @@ static void spi_task(void *arg)
             memcpy(dst + filled, frame, SPI_BUF_SIZE);
             filled += SPI_BUF_SIZE;
 
-            // Validate every 100 frames (low overhead)
-            validate_count++;
-            if (validate_count >= validate_mod) {
-                validate_count = 0;
-
-                int matched = 1;
-                int allZeros = 1;
-                for (int k = 0; k < 64; k++) {
-                    if (frame[k] != (uint8_t)k && frame[k] != 0) matched = 0;
-                    if (frame[k] != 0) allZeros = 0;
-                }
-                if (matched && !allZeros) correct++;
-                else incorrect++;
+            // Validate both magic bytes on every frame
+            if (frame[0] == MAGIC_BYTE_0 && frame[1] == MAGIC_BYTE_1) {
+                correct++;
+            } else {
+                incorrect++;
             }
         }
 
         if (filled == TCP_BATCH_SIZE) {
             item.len = TCP_BATCH_SIZE;
 
-            // Publish filled buffer to TCP task
-            // If TCP disconnects, this send could block; keep it bounded.
             if (xQueueSend(filled_q, &item, pdMS_TO_TICKS(100)) != pdTRUE) {
-                // If we couldn't publish, return buffer to free list
                 xQueueSend(free_q, &item, 0);
             }
         }
@@ -276,8 +280,6 @@ static void tcp_task(void *arg)
     (void)arg;
 
     char host_ip[] = HOST_IP_ADDR;
-    int64_t start_us = 0;
-    int64_t last_print_us = 0;
 
     while (1) {
         int addr_family = 0;
@@ -314,24 +316,19 @@ static void tcp_task(void *arg)
 
         ESP_LOGI(TAG, "Successfully connected to PC");
 
-        // Wait for SPI handshake to be completed once
+        // Wait for SPI handshake to complete once
         xEventGroupWaitBits(g_evt, HANDSHAKE_DONE_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
 
         // Mark connected so SPI task begins producing
         xEventGroupSetBits(g_evt, CONNECTED_BIT);
 
-        start_us = esp_timer_get_time();
-        last_print_us = 0;
-
         while (1) {
             batch_item_t item;
 
-            // Wait for next filled buffer (blocks)
             if (xQueueReceive(filled_q, &item, portMAX_DELAY) != pdTRUE) {
                 continue;
             }
 
-            // Send entire buffer
             size_t sent_total = 0;
             while (sent_total < item.len) {
                 ssize_t n = send(sock, item.buf + sent_total, item.len - sent_total, 0);
@@ -345,15 +342,12 @@ static void tcp_task(void *arg)
 
                 ESP_LOGE(TAG, "TCP send failed: errno %d", errno);
 
-                // Return buffer before reconnecting
                 xQueueSend(free_q, &item, 0);
 
-                // Disconnect handling
                 xEventGroupClearBits(g_evt, CONNECTED_BIT);
                 shutdown(sock, 0);
                 close(sock);
 
-                // Drain any already-filled buffers back to free list (avoid deadlock)
                 while (xQueueReceive(filled_q, &item, 0) == pdTRUE) {
                     xQueueSend(free_q, &item, 0);
                 }
@@ -361,29 +355,10 @@ static void tcp_task(void *arg)
                 goto reconnect;
             }
 
-            // Return buffer to free list
             xQueueSend(free_q, &item, 0);
-
-            // 1 Hz stats print (very low overhead)
-            int64_t now_us = esp_timer_get_time() - start_us;
-            if (now_us - last_print_us >= 1000000) {
-                last_print_us = now_us;
-
-                int c = (int)correct;
-                int ic = (int)incorrect;
-                int total = c + ic;
-                int acc_milli = (total > 0) ? (c * 1000) / total : 0;
-
-                // total samples checked = total validations * 100 (since validate every 100 frames)
-                esp_rom_printf("t=%lld ms  validated_samples=%d  acc=%d.%03d\n",
-                               (long long)(now_us / 1000),
-                               total * 100,
-                               acc_milli / 1000, acc_milli % 1000);
-            }
         }
 
 reconnect:
-        // loop reconnect
         vTaskDelay(pdMS_TO_TICKS(200));
     }
 }
@@ -391,8 +366,8 @@ reconnect:
 /* ======= Start function (call from app_main) ======= */
 void tcp_client(void)
 {
-    // Init SPI once
-    spi_master_init();
+    // Init SPI slave
+    spi_slave_init();
 
     // Create sync primitives
     g_evt = xEventGroupCreate();
@@ -410,8 +385,9 @@ void tcp_client(void)
         xQueueSend(free_q, &item, portMAX_DELAY);
     }
 
-    // Create tasks pinned to different cores
-    // ESP32: Core 0 often busier with Wi-Fi; common pattern is TCP on core 0, SPI on core 1.
-    xTaskCreatePinnedToCore(tcp_task, "tcp_task", 8192, NULL, 12, NULL, 0);
-    xTaskCreatePinnedToCore(spi_task, "spi_task", 8192, NULL, 13, NULL, 1);
+    // Core 0: TCP (shares core with Wi-Fi) + stats printer
+    // Core 1: SPI (dedicated, time-sensitive)
+    xTaskCreatePinnedToCore(tcp_task,   "tcp_task",   8192, NULL, 12, NULL, 0);
+    xTaskCreatePinnedToCore(stats_task, "stats_task", 2048, NULL,  5, NULL, 0);
+    xTaskCreatePinnedToCore(spi_task,   "spi_task",   8192, NULL, 13, NULL, 1);
 }
