@@ -122,5 +122,23 @@
 1352	1422	1773340820715272285	bootloader.elf	ce957400baa30e4b
 1423	1543	1773340820906029101	.bin_timestamp	597b4fc23b68a45f
 1423	1543	1773340820906029101	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/.bin_timestamp	597b4fc23b68a45f
-1543	1578	1773340820906605412	CMakeFiles/bootloader_check_size	521ba1303f748a82
-1543	1578	1773340820906605412	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	521ba1303f748a82
+7	43	1773949444975496525	CMakeFiles/bootloader_check_size	521ba1303f748a82
+7	43	1773949444975496525	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	521ba1303f748a82
+5	132	1773951168117191744	.bin_timestamp	d3ebc96ff58c70b0
+5	132	1773951168117191744	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/.bin_timestamp	d3ebc96ff58c70b0
+133	169	1773951168117940996	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+133	169	1773951168117940996	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	73	1773952262245055829	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	73	1773952262245055829	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	57	1773952269449964521	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	57	1773952269449964521	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	46	1773952339037439055	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	46	1773952339037439055	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	44	1773952360341351767	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	44	1773952360341351767	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	51	1773952503943962179	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+6	51	1773952503943962179	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+8	114	1773955476672588632	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+8	114	1773955476672588632	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+7	59	1773958727081995501	CMakeFiles/bootloader_check_size	959a2e4dfbcad15e
+7	59	1773958727081995501	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/CMakeFiles/bootloader_check_size	959a2e4dfbcad15e

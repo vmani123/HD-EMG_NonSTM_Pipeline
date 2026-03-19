@@ -708,7 +708,7 @@
 15181	15268	1773340814492967803	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/esp_efuse_startup.c.obj	877f4fa2321cf92d
 15216	15281	1773340814528502095	esp-idf/esp_bootloader_format/CMakeFiles/__idf_esp_bootloader_format.dir/esp_bootloader_desc.c.obj	f7be1988b6131c5d
 15151	15302	1773340814463784424	esp-idf/efuse/CMakeFiles/__idf_efuse.dir/src/efuse_controller/keys/without_key_purposes/three_key_blocks/esp_efuse_api_key.c.obj	5077c990f1f47948
-15219	15319	1773340814531549391	esp-idf/esp_app_format/CMakeFiles/__idf_esp_app_format.dir/esp_app_desc.c.obj	442094f224e96715
+44	223	1773949444950940034	esp-idf/esp_app_format/CMakeFiles/__idf_esp_app_format.dir/esp_app_desc.c.obj	dfe8de9bd14b9e3c
 15205	15331	1773340814517376789	esp-idf/esp_partition/CMakeFiles/__idf_esp_partition.dir/partition_target.c.obj	64d0ba2abf2322b5
 15302	15344	1773340814614446921	esp-idf/xtensa/CMakeFiles/__idf_xtensa.dir/eri.c.obj	8eb37fee5c77c1a4
 15281	15347	1773340814593181851	esp-idf/esp_hal_mspi/CMakeFiles/__idf_esp_hal_mspi.dir/spi_flash_encrypt_hal_iram.c.obj	4357f02494948c32
@@ -774,8 +774,8 @@
 16168	16301	1773340815480317170	esp-idf/protocol_examples_common/CMakeFiles/__idf_protocol_examples_common.dir/protocol_examples_utils.c.obj	9f38b9d66c4f74d9
 16161	16304	1773340815473247826	esp-idf/protocol_examples_common/CMakeFiles/__idf_protocol_examples_common.dir/connect.c.obj	78f265ce6823e7e7
 16161	16312	1773340815473836928	esp-idf/protocol_examples_common/CMakeFiles/__idf_protocol_examples_common.dir/wifi_connect.c.obj	dc1c6ac81fd85b3f
-16287	16331	1773340815599398257	esp-idf/esp_app_format/libesp_app_format.a	7e47f166b68940c6
-16175	16360	1773340815486985904	esp-idf/main/CMakeFiles/__idf_main.dir/tcp_client_v4.c.obj	3bf2b25867de6f8f
+223	353	1773949445130522790	esp-idf/esp_app_format/libesp_app_format.a	7e47f166b68940c6
+44	244	1773949444951339743	esp-idf/main/CMakeFiles/__idf_main.dir/tcp_client_v4.c.obj	3bf2b25867de6f8f
 16331	16377	1773340815643678576	esp-idf/esp_hal_mspi/libesp_hal_mspi.a	620e7519ad202e98
 16377	16426	1773340815689712825	esp-idf/xtensa/libxtensa.a	db736ca734a33f5c
 16426	16477	1773340815738006860	esp-idf/esp_driver_spi/libesp_driver_spi.a	6b0005b4ed7c561b
@@ -784,28 +784,192 @@
 15974	16547	1773340815286427062	esp-idf/unity/CMakeFiles/__idf_unity.dir/unity/src/unity.c.obj	d1df257ad4e05e64
 16528	16575	1773340815840701601	esp-idf/protocol_examples_common/libprotocol_examples_common.a	a5b6c87becf727f4
 16547	16592	1773340815859400897	esp-idf/unity/libunity.a	90a814fe454de3db
-16592	16633	1773340815904502184	esp-idf/main/libmain.a	7bf4fcbe2d56f177
+353	398	1773949445260045352	esp-idf/main/libmain.a	7bf4fcbe2d56f177
 13111	20033	1773340819344980970	bootloader-prefix/src/bootloader-stamp/bootloader-configure	9b48490ab501c841
 13111	20033	1773340819344980970	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure	9b48490ab501c841
-20034	21630	1773340819346325666	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	bootloader/bootloader.elf	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	bootloader/bootloader.bin	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	bootloader/bootloader.map	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
-20034	21630	1773340819346325666	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
-21631	21645	1773340820942749055	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
-21631	21645	1773340820942749055	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
-21646	21684	1773340820995454621	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
-21646	21684	1773340820995454621	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
-21646	21684	1773340820995454621	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
-21646	21684	1773340820995454621	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
-16633	23268	1773340822551096260	esp-idf/esp_system/ld/sections.ld	69f5eceb30f872c3
-16633	23268	1773340822551096260	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_system/ld/sections.ld	69f5eceb30f872c3
+44	105	1773949444951518369	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+44	105	1773949444951518369	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+44	105	1773949444951518369	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+44	105	1773949444951518369	bootloader/bootloader.map	9ba8f421a0d5fdf1
+44	105	1773949444951518369	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+44	105	1773949444951518369	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+44	105	1773949444951518369	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+44	105	1773949444951518369	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+106	121	1773949445012613389	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+106	121	1773949445012613389	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+121	161	1773949445067300000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+121	161	1773949445067300000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+121	161	1773949445067300000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+121	161	1773949445067300000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+398	6793	1773949451668806324	esp-idf/esp_system/ld/sections.ld	69f5eceb30f872c3
+398	6793	1773949451668806324	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_system/ld/sections.ld	69f5eceb30f872c3
 23268	23289	1773340822579978276	CMakeFiles/tcp_client.elf.dir/project_elf_src_esp32.c.obj	54f2e62f69b7ab97
-23289	24999	1773340822601444046	tcp_client.elf	77ad00e96c047676
-24999	25135	1773340824446751768	.bin_timestamp	bcf09922d3f6bc2
-24999	25135	1773340824446751768	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/.bin_timestamp	bcf09922d3f6bc2
-25135	25169	1773340824447402075	CMakeFiles/app_check_size	b9654370a9177175
-25135	25169	1773340824447402075	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	b9654370a9177175
+6793	8634	1773949451700232169	tcp_client.elf	77ad00e96c047676
+8634	8793	1773949453699922979	.bin_timestamp	bcf09922d3f6bc2
+8634	8793	1773949453699922979	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/.bin_timestamp	bcf09922d3f6bc2
+8794	8829	1773949453700665190	CMakeFiles/app_check_size	b9654370a9177175
+8794	8829	1773949453700665190	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	b9654370a9177175
+57	9318	1773951162255111940	build.ninja	c570939c896d57e8
+27	9002	1773951162255111940	build.ninja	c570939c896d57e8
+31	143	1773951162357044168	partition_table/partition-table.bin	938e51b3e7251d48
+31	143	1773951162357044168	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/partition_table/partition-table.bin	938e51b3e7251d48
+30	191	1773951162474283859	esp-idf/mbedtls/x509_crt_bundle	b0cbcc93e4e3f2fb
+30	191	1773951162474283859	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/mbedtls/x509_crt_bundle	b0cbcc93e4e3f2fb
+191	298	1773951162590655006	x509_crt_bundle.S	d048055c9c3e8205
+191	298	1773951162590655006	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/x509_crt_bundle.S	d048055c9c3e8205
+299	405	1773951162591984677	esp-idf/mbedtls/CMakeFiles/__idf_mbedtls.dir/__/__/x509_crt_bundle.S.obj	b5bce64b11d5413b
+405	481	1773951162698328668	esp-idf/mbedtls/libmbedtls.a	4245fe8678ad2879
+299	572	1773951162592291011	esp-idf/main/CMakeFiles/__idf_main.dir/tcp_client_v4.c.obj	3bf2b25867de6f8f
+572	618	1773951162864955093	esp-idf/main/libmain.a	7bf4fcbe2d56f177
+143	5670	1773951167961953000	bootloader-prefix/src/bootloader-stamp/bootloader-configure	cfb1c7f7f6a72412
+143	5670	1773951167961953000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure	cfb1c7f7f6a72412
+5670	5862	1773951167963763109	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	bootloader/bootloader.map	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+5670	5862	1773951167963763109	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+5862	5878	1773951168155763403	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+5862	5878	1773951168155763403	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+5878	5918	1773951168210607000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+5878	5918	1773951168210607000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+5878	5918	1773951168210607000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+5878	5918	1773951168210607000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+619	7122	1773951169351921386	esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+619	7122	1773951169351921386	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+7122	9021	1773951169415232579	tcp_client.elf	77ad00e96c047676
+9021	9255	1773951171547242793	.bin_timestamp	597478e9a4d0f33f
+9021	9255	1773951171547242793	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/.bin_timestamp	597478e9a4d0f33f
+9255	9316	1773951171548218254	CMakeFiles/app_check_size	8244ec3145d3e1b8
+9255	9316	1773951171548218254	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	8244ec3145d3e1b8
+38	143	1773952262208709093	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+38	143	1773952262208709093	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+38	143	1773952262208709093	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+38	143	1773952262208709093	bootloader/bootloader.map	9ba8f421a0d5fdf1
+38	143	1773952262208709093	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+38	143	1773952262208709093	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+38	143	1773952262208709093	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+38	143	1773952262208709093	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+143	174	1773952262314098289	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+143	174	1773952262314098289	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+174	214	1773952262384395000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+174	214	1773952262384395000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+174	214	1773952262384395000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+174	214	1773952262384395000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+31	114	1773952269419470761	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+31	114	1773952269419470761	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+31	114	1773952269419470761	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+31	114	1773952269419470761	bootloader/bootloader.map	9ba8f421a0d5fdf1
+31	114	1773952269419470761	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+31	114	1773952269419470761	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+31	114	1773952269419470761	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+31	114	1773952269419470761	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+114	129	1773952269502642182	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+114	129	1773952269502642182	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+129	169	1773952269556529000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+129	169	1773952269556529000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+129	169	1773952269556529000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+129	169	1773952269556529000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+30	171	1773952269418988426	esp-idf/main/CMakeFiles/__idf_main.dir/tcp_client_v4.c.obj	3bf2b25867de6f8f
+171	230	1773952269559496522	esp-idf/main/libmain.a	7bf4fcbe2d56f177
+230	6423	1773952275783997223	esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+230	6423	1773952275783997223	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+6424	8159	1773952275812379851	tcp_client.elf	77ad00e96c047676
+8160	8309	1773952277696915142	.bin_timestamp	597478e9a4d0f33f
+8160	8309	1773952277696915142	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/.bin_timestamp	597478e9a4d0f33f
+8309	8342	1773952277697530478	CMakeFiles/app_check_size	8244ec3145d3e1b8
+8309	8342	1773952277697530478	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	8244ec3145d3e1b8
+48	94	1773952339002371198	CMakeFiles/app_check_size	8244ec3145d3e1b8
+48	94	1773952339002371198	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	8244ec3145d3e1b8
+48	125	1773952339001891155	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+48	125	1773952339001891155	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+48	125	1773952339001891155	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+48	125	1773952339001891155	bootloader/bootloader.map	9ba8f421a0d5fdf1
+48	125	1773952339001891155	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+48	125	1773952339001891155	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+48	125	1773952339001891155	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+48	125	1773952339001891155	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+125	140	1773952339078900515	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+125	140	1773952339078900515	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+140	180	1773952339133090000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+140	180	1773952339133090000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+140	180	1773952339133090000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+140	180	1773952339133090000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+88	157	1773952360305443865	CMakeFiles/app_check_size	8244ec3145d3e1b8
+88	157	1773952360305443865	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	8244ec3145d3e1b8
+87	164	1773952360304479446	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+87	164	1773952360304479446	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+87	164	1773952360304479446	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+87	164	1773952360304479446	bootloader/bootloader.map	9ba8f421a0d5fdf1
+87	164	1773952360304479446	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+87	164	1773952360304479446	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+87	164	1773952360304479446	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+87	164	1773952360304479446	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+164	179	1773952360380982304	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+164	179	1773952360380982304	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+180	219	1773952360435720000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+180	219	1773952360435720000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+180	219	1773952360435720000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+180	219	1773952360435720000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+37	125	1773952503903325930	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+37	125	1773952503903325930	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+37	125	1773952503903325930	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+37	125	1773952503903325930	bootloader/bootloader.map	9ba8f421a0d5fdf1
+37	125	1773952503903325930	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+37	125	1773952503903325930	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+37	125	1773952503903325930	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+37	125	1773952503903325930	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+125	140	1773952503991345157	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+125	140	1773952503991345157	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+140	190	1773952504055471000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+140	190	1773952504055471000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+140	190	1773952504055471000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+140	190	1773952504055471000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+36	317	1773952503902616053	esp-idf/main/CMakeFiles/__idf_main.dir/tcp_client_v4.c.obj	3bf2b25867de6f8f
+317	379	1773952504183481743	esp-idf/main/libmain.a	7bf4fcbe2d56f177
+379	6844	1773952510680931610	esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+379	6844	1773952510680931610	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+6844	8633	1773952510710673992	tcp_client.elf	77ad00e96c047676
+8633	8883	1773952512749084045	.bin_timestamp	597478e9a4d0f33f
+8633	8883	1773952512749084045	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/.bin_timestamp	597478e9a4d0f33f
+8883	8917	1773952512749897964	CMakeFiles/app_check_size	8244ec3145d3e1b8
+8883	8917	1773952512749897964	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	8244ec3145d3e1b8
+192	455	1773955476521244393	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+192	455	1773955476521244393	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+192	455	1773955476521244393	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+192	455	1773955476521244393	bootloader/bootloader.map	9ba8f421a0d5fdf1
+192	455	1773955476521244393	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+192	455	1773955476521244393	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+192	455	1773955476521244393	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+192	455	1773955476521244393	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+455	472	1773955476784957053	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+455	472	1773955476784957053	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+472	523	1773955476851476000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+472	523	1773955476851476000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+472	523	1773955476851476000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+472	523	1773955476851476000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+187	589	1773955476516211077	esp-idf/main/CMakeFiles/__idf_main.dir/tcp_client_v4.c.obj	3bf2b25867de6f8f
+589	681	1773955476918469669	esp-idf/main/libmain.a	7bf4fcbe2d56f177
+40	222	1773958726957797938	bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+40	222	1773958726957797938	bootloader/bootloader.elf	9ba8f421a0d5fdf1
+40	222	1773958726957797938	bootloader/bootloader.bin	9ba8f421a0d5fdf1
+40	222	1773958726957797938	bootloader/bootloader.map	9ba8f421a0d5fdf1
+40	222	1773958726957797938	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-build	9ba8f421a0d5fdf1
+40	222	1773958726957797938	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.elf	9ba8f421a0d5fdf1
+40	222	1773958726957797938	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.bin	9ba8f421a0d5fdf1
+40	222	1773958726957797938	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader/bootloader.map	9ba8f421a0d5fdf1
+222	237	1773958727139569376	bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+222	237	1773958727139569376	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-install	dd9476c5ac53e3fe
+237	275	1773958727192062000	CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+237	275	1773958727192062000	bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+237	275	1773958727192062000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/bootloader-complete	34b9ee7ac7a804b8
+237	275	1773958727192062000	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/bootloader-prefix/src/bootloader-stamp/bootloader-done	34b9ee7ac7a804b8
+39	6440	1773958733323323820	esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+39	6440	1773958733323323820	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/esp-idf/esp_system/ld/sections.ld	96a2bcf7f1867ba7
+6441	8265	1773958733358414290	tcp_client.elf	77ad00e96c047676
+8265	8434	1773958735350393590	.bin_timestamp	597478e9a4d0f33f
+8265	8434	1773958735350393590	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/.bin_timestamp	597478e9a4d0f33f
+8434	8469	1773958735351359172	CMakeFiles/app_check_size	8244ec3145d3e1b8
+8434	8469	1773958735351359172	/Users/th3vik/Desktop/Research/NML work/Testing_ESP/tcp_client/build/CMakeFiles/app_check_size	8244ec3145d3e1b8

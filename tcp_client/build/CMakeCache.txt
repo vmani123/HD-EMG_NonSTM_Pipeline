@@ -14,6 +14,9 @@
 # EXTERNAL cache entries
 ########################
 
+//No help, variable specified on the command line.
+CCACHE_ENABLE:UNINITIALIZED=False
+
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/Users/th3vik/Desktop/esp-idf/tools/tools/xtensa-esp-elf/esp-15.2.0_20250929/xtensa-esp-elf/bin/xtensa-esp32-elf-addr2line
 
@@ -350,6 +353,9 @@ Mbed TLS_IS_TOP_LEVEL:STATIC=OFF
 Mbed TLS_SOURCE_DIR:STATIC=/Users/th3vik/Desktop/esp-idf/components/mbedtls/mbedtls
 
 //No help, variable specified on the command line.
+PYTHON:UNINITIALIZED=/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/bin/python3
+
+//No help, variable specified on the command line.
 PYTHON_DEPS_CHECKED:UNINITIALIZED=1
 
 //No help, variable specified on the command line.
@@ -597,7 +603,7 @@ C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS:INTERNAL=1
 //Details about finding Git
 FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[/usr/local/bin/git][v2.48.1()]
 //Details about finding Python3
-FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/bin/python][cfound components: Interpreter ][v3.11.0()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python3:INTERNAL=[/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/bin/python3][cfound components: Interpreter ][v3.11.0()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //ADVANCED property for variable: GIT_EXECUTABLE
@@ -608,10 +614,10 @@ _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
 _Python3_Compiler_REASON_FAILURE:INTERNAL=
 //Development reason failure
 _Python3_Development_REASON_FAILURE:INTERNAL=
-_Python3_EXECUTABLE:INTERNAL=/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/bin/python
+_Python3_EXECUTABLE:INTERNAL=/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/bin/python3
 //Python3 Properties
 _Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;11;0;32;64;;;abi3;/opt/anaconda3/lib/python3.11;/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/lib/python3.11;/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/lib/python3.11/site-packages;/Users/th3vik/Desktop/esp-idf/tools/python_env/idf6.0_py3.11_env/lib/python3.11/site-packages
-_Python3_INTERPRETER_SIGNATURE:INTERNAL=18eaf4d9c29e4195eadd65c08915f4ee
+_Python3_INTERPRETER_SIGNATURE:INTERNAL=046b662951090bb1cfa3bb7111ea5707
 //NumPy reason failure
 _Python3_NumPy_REASON_FAILURE:INTERNAL=
 

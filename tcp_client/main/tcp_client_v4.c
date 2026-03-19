@@ -90,6 +90,8 @@ static EventGroupHandle_t g_evt = NULL;
 static volatile uint32_t correct   = 0;
 static volatile uint32_t incorrect = 0;
 
+int handshake_complete = 0;
+
 /* ======= SPI init ======= */
 static void spi_slave_init(void)
 {
@@ -136,10 +138,12 @@ static bool stm_handshake(void)
 {
     esp_rom_printf("Waiting for handshake from STM...\n");
 
+    int8_t txbuf[2] = {0x0F, 0x0F};
     spi_slave_transaction_t t = {
-        .tx_buffer = NULL,
+        .tx_buffer = txbuf,
         .rx_buffer = s_rxbuf[0],
-        .length    = SPI_BUF_SIZE * 8,
+        .length = 16 
+        // .length    = SPI_BUF_SIZE * 8,
     };
 
     while (1) {
@@ -147,7 +151,9 @@ static bool stm_handshake(void)
         ESP_ERROR_CHECK(spi_slave_transmit(SPI_HOST_USE, &t, portMAX_DELAY));
 
         if (s_rxbuf[0][0] == MAGIC_BYTE_0 && s_rxbuf[0][1] == MAGIC_BYTE_1) {
-            break;
+            esp_rom_printf("SPI Handshake Complete from ESP end.\n");
+            handshake_complete = 1;
+            return true;
         }
 
         esp_rom_printf("Handshake: unexpected magic=0x%02X%02X, retrying...\n", s_rxbuf[0][0], s_rxbuf[0][1]);
@@ -205,6 +211,9 @@ static void stats_task(void *arg)
         uint32_t total = c + ic;
 
         if (total == 0) {
+            if(!handshake_complete){
+                esp_rom_printf("Handshake incomplete.");
+            }            
             esp_rom_printf("[stats] No frames validated yet\n");
         } else {
             uint32_t acc_milli = (c * 1000) / total;
